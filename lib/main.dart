@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:local_db/database/connect_db.dart';
+import 'package:local_db/model/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -18,7 +20,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Flutter Demo Database'),
     );
   }
 }
@@ -33,35 +35,19 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int counter = 0;
-  // List<String> dataPerson = ['Lita', 'Nita', 'Channa', 'Rathana']; // Rathana
-  void setDataInc() async {
-    var pref = await SharedPreferences.getInstance();
-    pref.setInt('number', ++counter);
-    getData();
-    // dataPerson.add('Rathana');
-    // pref.setStringList('person', dataPerson);
-  }
-
-  void setDataDec() async {
-    var pref = await SharedPreferences.getInstance();
-    if (counter > 0) pref.setInt('number', --counter);
-    getData();
-  }
-
-  void getData() async {
-    var pref = await SharedPreferences.getInstance();
-    setState(() {
-      counter = pref.getInt('number') ?? 0;
-      log(counter.toString());
+  List<UserModel> listUser = [];
+  void getDataFromDatabase() async {
+    await ConnectDB().getUsers().then((value) {
+      setState(() {
+        listUser = value;
+      });
     });
-    // dataPerson = pref.getStringList('person') ?? [];
   }
 
   @override
   void initState() {
     super.initState();
-    getData();
+    getDataFromDatabase();
   }
 
   @override
@@ -71,38 +57,24 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+      body: ListView.builder(
+        itemCount: listUser.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: const CircleAvatar(),
+            title: Text(listUser[index].name.toString()),
+            subtitle: Text(listUser[index].positoin.toString()),
+          );
+        },
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          FloatingActionButton(
-            onPressed: () async {
-              setDataDec();
-            },
-            tooltip: 'Decrement',
-            child: const Icon(Icons.remove),
-          ),
-          FloatingActionButton(
-            onPressed: () async {
-              setDataInc();
-            },
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await ConnectDB().insertUser(
+              user: UserModel(
+                  name: 'Kaka', gender: 'female', age: 22, positoin: 'Design'));
+        },
+        tooltip: 'Decrement',
+        child: const Icon(Icons.add),
       ),
     );
   }
