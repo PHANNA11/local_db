@@ -45,7 +45,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void setDataDec() async {
     var pref = await SharedPreferences.getInstance();
-
     if (counter > 0) pref.setInt('number', --counter);
     getData();
   }
@@ -61,7 +60,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getData();
   }
