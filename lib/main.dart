@@ -1,9 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:local_db/database/connect_db.dart';
 import 'package:local_db/model/user_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:local_db/screen/add_user_sceen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -61,17 +59,40 @@ class _MyHomePageState extends State<MyHomePage> {
         itemCount: listUser.length,
         itemBuilder: (context, index) {
           return ListTile(
+            onLongPress: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddEdiitUser(
+                      userModel: listUser[index],
+                    ),
+                  ));
+            },
             leading: const CircleAvatar(),
             title: Text(listUser[index].name.toString()),
             subtitle: Text(listUser[index].positoin.toString()),
+            trailing: IconButton(
+                onPressed: () async {
+                  await ConnectDB()
+                      .deleteUser(id: listUser[index].id!)
+                      .then((value) {
+                    getDataFromDatabase();
+                  });
+                },
+                icon: const Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                )),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await ConnectDB().insertUser(
-              user: UserModel(
-                  name: 'Kaka', gender: 'female', age: 22, positoin: 'Design'));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddEdiitUser(),
+              ));
         },
         tooltip: 'Decrement',
         child: const Icon(Icons.add),

@@ -16,7 +16,7 @@ class ConnectDB {
     String path = await getDatabasesPath();
     return openDatabase(join(path, 'user.db'), onCreate: (db, version) async {
       await db.execute(
-          'CREATE TABLE $userTable($fId INTEGER PRIMIRY KEY AUTO INCREMENT,$fName TEXT,$fGender TEXT,$fAge INTEGER,$fPositoin TEXT)');
+          'CREATE TABLE $userTable($fId INTEGER PRIMARY KEY AUTOINCREMENT,$fName TEXT,$fGender TEXT,$fAge INTEGER,$fPositoin TEXT)');
     }, version: 1);
   }
 
@@ -31,5 +31,15 @@ class ConnectDB {
     List<Map<String, dynamic>> result = await db.query(userTable);
 
     return result.map((e) => UserModel.fromMap(e)).toList();
+  }
+
+  Future<void> updateUser({required UserModel user, required int id}) async {
+    var db = await initializeUserDB();
+    await db.update(userTable, user.toMap(), where: '$fId=?', whereArgs: [id]);
+  }
+
+  Future<void> deleteUser({required int id}) async {
+    var db = await initializeUserDB();
+    await db.delete(userTable, where: '$fId=?', whereArgs: [id]);
   }
 }
