@@ -162,7 +162,7 @@ class _AddEdiitUserState extends State<AddEdiitUser> {
 
   Widget pickImageDialog() {
     return AlertDialog(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.white, //#008000
       content: SizedBox(
           height: 150,
           width: double.infinity,
