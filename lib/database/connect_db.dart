@@ -16,7 +16,7 @@ class ConnectDB {
     String path = await getDatabasesPath();
     return openDatabase(join(path, 'user.db'), onCreate: (db, version) async {
       await db.execute(
-          'CREATE TABLE $userTable($fId INTEGER PRIMARY KEY AUTOINCREMENT,$fName TEXT,$fGender TEXT,$fAge INTEGER,$fPositoin TEXT)');
+          'CREATE TABLE $userTable($fId INTEGER PRIMARY KEY AUTOINCREMENT,$fName TEXT,$fGender TEXT,$fAge INTEGER,$fPositoin TEXT,$fImage TEXT)');
     }, version: 1);
   }
 

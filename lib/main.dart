@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:local_db/database/connect_db.dart';
 import 'package:local_db/model/user_model.dart';
@@ -34,7 +36,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<UserModel> listUser = [];
-  void getDataFromDatabase() async {
+  Future<void> getDataFromDatabase() async {
     await ConnectDB().getUsers().then((value) {
       setState(() {
         listUser = value;
@@ -55,37 +57,42 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: ListView.builder(
-        itemCount: listUser.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            onLongPress: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddEdiitUser(
-                      userModel: listUser[index],
-                    ),
-                  ));
-            },
-            leading: const CircleAvatar(),
-            title: Text(listUser[index].name.toString()),
-            subtitle: Text(listUser[index].positoin.toString()),
-            trailing: IconButton(
-                onPressed: () async {
-                  await ConnectDB()
-                      .deleteUser(id: listUser[index].id!)
-                      .then((value) {
-                    getDataFromDatabase();
-                  });
+      body: RefreshIndicator(
+          onRefresh: getDataFromDatabase,
+          child: ListView.builder(
+            itemCount: listUser.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                onLongPress: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddEdiitUser(
+                          userModel: listUser[index],
+                        ),
+                      ));
                 },
-                icon: const Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                )),
-          );
-        },
-      ),
+                leading: CircleAvatar(
+                  backgroundImage:
+                      FileImage(File(listUser[index].image.toString())),
+                ),
+                title: Text(listUser[index].name.toString()),
+                subtitle: Text(listUser[index].positoin.toString()),
+                trailing: IconButton(
+                    onPressed: () async {
+                      await ConnectDB()
+                          .deleteUser(id: listUser[index].id!)
+                          .then((value) {
+                        getDataFromDatabase();
+                      });
+                    },
+                    icon: const Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    )),
+              );
+            },
+          )),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           Navigator.push(

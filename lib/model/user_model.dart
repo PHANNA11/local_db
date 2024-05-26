@@ -7,7 +7,8 @@ class UserModel {
   int? age;
   String? positoin;
   String? image;
-  UserModel({this.id, this.name, this.gender, this.age, this.positoin});
+  UserModel(
+      {this.id, this.name, this.gender, this.age, this.positoin, this.image});
 // Convert Object data => Map
   Map<String, dynamic> toMap() {
     return {
@@ -15,6 +16,7 @@ class UserModel {
       fGender: gender,
       fAge: age,
       fPositoin: positoin,
+      fImage: image,
     };
   }
 // Covert map => Object data
@@ -24,5 +26,6 @@ class UserModel {
         name = map[fName],
         gender = map[fGender],
         age = map[fAge],
-        positoin = map[fPositoin];
+        positoin = map[fPositoin],
+        image = map[fImage];
 }

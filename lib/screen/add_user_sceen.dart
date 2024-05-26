@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../database/connect_db.dart';
 import '../model/user_model.dart';
@@ -16,6 +19,7 @@ class _AddEdiitUserState extends State<AddEdiitUser> {
   TextEditingController genderController = TextEditingController();
   TextEditingController ageController = TextEditingController();
   TextEditingController positoinController = TextEditingController();
+  File? image;
 
   void initData() {
     setState(() {
@@ -23,6 +27,7 @@ class _AddEdiitUserState extends State<AddEdiitUser> {
       genderController.text = widget.userModel!.gender.toString();
       ageController.text = widget.userModel!.age.toString();
       positoinController.text = widget.userModel!.positoin.toString();
+      image = File(widget.userModel!.image.toString());
     });
   }
 
@@ -82,6 +87,32 @@ class _AddEdiitUserState extends State<AddEdiitUser> {
               decoration: const InputDecoration(
                   border: OutlineInputBorder(), hintText: 'positoin'),
             ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => pickImageDialog(),
+                );
+              },
+              child: Container(
+                height: 180,
+                width: 180,
+                decoration: BoxDecoration(
+                    border: Border.all(width: 1, color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10),
+                    image: image == null
+                        ? const DecorationImage(
+                            // fit: BoxFit.cover,
+                            image: AssetImage('assets/image/empty_image.png'))
+                        : DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(File(image!.path))),
+                    color: Colors.white),
+              ),
+            ),
           )
         ],
       ),
@@ -94,7 +125,8 @@ class _AddEdiitUserState extends State<AddEdiitUser> {
                         name: nameController.text,
                         gender: genderController.text,
                         age: int.parse(ageController.text),
-                        positoin: positoinController.text))
+                        positoin: positoinController.text,
+                        image: image!.path))
                 .whenComplete(() {
               Navigator.pop(context);
             });
@@ -105,7 +137,8 @@ class _AddEdiitUserState extends State<AddEdiitUser> {
                         name: nameController.text,
                         gender: genderController.text,
                         age: int.parse(ageController.text),
-                        positoin: positoinController.text),
+                        positoin: positoinController.text,
+                        image: image!.path),
                     id: widget.userModel!.id!)
                 .whenComplete(() {
               Navigator.pop(context);
@@ -125,5 +158,41 @@ class _AddEdiitUserState extends State<AddEdiitUser> {
         ),
       ),
     );
+  }
+
+  Widget pickImageDialog() {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      content: SizedBox(
+          height: 150,
+          width: double.infinity,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ListTile(
+                onTap: () async {
+                  pickImageData(source: ImageSource.camera);
+                },
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Camera'),
+              ),
+              ListTile(
+                onTap: () async {
+                  pickImageData(source: ImageSource.gallery);
+                },
+                leading: const Icon(Icons.image),
+                title: const Text('Gallaey'),
+              ),
+            ],
+          )),
+    );
+  }
+
+  Future<void> pickImageData({required ImageSource source}) async {
+    var getImage = await ImagePicker().pickImage(source: source);
+    setState(() {
+      image = File(getImage!.path);
+    });
+    Navigator.pop(context);
   }
 }
